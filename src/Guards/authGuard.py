@@ -6,7 +6,7 @@ from src.utils.config import Settings
 
 
 
-def get_current_user(request: Request, db: Session = Depends(get_db)):
+def get_current_user(request: Request):
     try:
         auth_header = request.headers.get("Authorization")
 
