@@ -14,4 +14,4 @@ class UserModel(Base):
     email = Column(String, nullable=False, unique=True)
     is_active = Column(Boolean, default=True)
 
-    todo = relationship("todo", back_populates="users")
+    todos = relationship("Todo", back_populates="user")

@@ -15,4 +15,4 @@ class Todo(Base):
     description = Column(String, nullable=True)
 
     
-    user = relationship("users", back_populates="todo")
+    user = relationship("UserModel", back_populates="todos")

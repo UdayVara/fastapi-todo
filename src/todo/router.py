@@ -1,35 +1,31 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from src.todo.dto.postDtos import CreateTodoDTO, UpdateTodoDTO
 from src.utils.db import get_db
-from src.todo.model import Todo
-
 from src.Guards.authGuard import get_current_user
+
+from src.todo.controller import (
+    create_todo_service,
+    get_todos_service,
+    get_todo_service,
+    update_todo_service,
+    delete_todo_service
+)
 
 router = APIRouter(
     prefix="/todos",
     tags=["todo"],
 )
 
+
 @router.post("/")
 def create_todo(
-    body:CreateTodoDTO,
+    body: CreateTodoDTO,
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
-    todo = Todo(
-        title=body.title,
-        description=body.description,
-        user_id=current_user
-    )
-
-    db.add(todo)
-    db.commit()
-    db.refresh(todo)
-
-    return todo
-
+    return create_todo_service(body, db, current_user)
 
 
 @router.get("/")
@@ -37,12 +33,7 @@ def get_todos(
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
-    todos = db.query(Todo).filter(
-        Todo.user_id == current_user
-    ).all()
-
-    return todos
-
+    return get_todos_service(db, current_user)
 
 
 @router.get("/{todo_id}")
@@ -51,15 +42,7 @@ def get_todo(
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
-    todo = db.query(Todo).filter(
-        Todo.id == todo_id,
-        Todo.user_id == current_user
-    ).first()
-
-    if not todo:
-        raise HTTPException(status_code=404, detail="Todo not found")
-
-    return todo
+    return get_todo_service(todo_id, db, current_user)
 
 
 @router.put("/{todo_id}")
@@ -69,24 +52,8 @@ def update_todo(
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
-    todo = db.query(Todo).filter(
-        Todo.id == todo_id,
-        Todo.user_id == current_user
-    ).first()
+    return update_todo_service(todo_id, body, db, current_user)
 
-    if not todo:
-        raise HTTPException(status_code=404, detail="Todo not found")
-
-    if body.title is not None:
-        todo.title = body.title
-
-    if body.description is not None:
-        todo.description = body.description
-
-    db.commit()
-    db.refresh(todo)
-
-    return todo
 
 @router.delete("/{todo_id}")
 def delete_todo(
@@ -94,16 +61,4 @@ def delete_todo(
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
-    todo = db.query(Todo).filter(
-        Todo.id == todo_id,
-        Todo.user_id == current_user
-    ).first()
-
-    if not todo:
-        raise HTTPException(status_code=404, detail="Todo not found")
-
-    db.delete(todo)
-    db.commit()
-
-    return {"message": "Todo deleted"}
-
+    return delete_todo_service(todo_id, db, current_user)
