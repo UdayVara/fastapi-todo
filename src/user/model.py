@@ -1,5 +1,6 @@
 import uuid
 from sqlalchemy import UUID, Boolean, Column, String
+from sqlalchemy.orm import relationship
 
 from src.utils.db import Base
 
@@ -12,3 +13,5 @@ class UserModel(Base):
     password = Column(String, nullable=False)
     email = Column(String, nullable=False, unique=True)
     is_active = Column(Boolean, default=True)
+
+    todo = relationship("todo", back_populates="users")

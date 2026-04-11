@@ -9,9 +9,10 @@ app = FastAPI()
 Base.metadata.create_all(bind=engine)
 
 from src.user.router import user_router
-
+from src.todo.router import router as todo_router
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
 
 app.include_router(router=user_router)
+app.include_router(router=todo_router)
